@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "cylon": "^1.3.0",
-    "cylon-neurosky-master": "^0.15.0",
+    "cylon-neurosky-master": "^0.16.0",
     "redux": "^4.0.1"
   }
 }
