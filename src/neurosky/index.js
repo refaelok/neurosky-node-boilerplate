@@ -3,7 +3,6 @@ import {NeuroskyEvents, port} from './neurosky.config';
 import detectors from '../detector';
 import algoActions from '../detector/algo-actions';
 
-const results = {};
 const executeActions = (results, event) => {
     for (const actionName of detectors[event]) {
         const actionFunc = algoActions[actionName];
@@ -28,11 +27,10 @@ export default Cylon.robot({
         headset: { driver: 'neurosky-master' }
     },
 
-    work: function(my) {
+    work: (my) => {
         for (const event in NeuroskyEvents) {
             my.headset.on(event, (data) => {
-                results.attention = data;
-                executeActions(results, event); // to run the algorithms and dispatch accordinly
+                executeActions(data, event); // to run the algorithms and dispatch accordinly
             });
         }
     }
