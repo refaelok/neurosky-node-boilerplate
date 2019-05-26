@@ -7,13 +7,13 @@ import Training from'./Training';
         moveLeft:  {
             sayText: 'Please imagine you move left. In 3, 2, 1',
             trialDuration: 3,
-            trialTimes: 3,
+            trialTimes: 1,
             sampleRate: 512
         },
         moveRight:     {
             sayText: 'Please imagine you move right. In 3, 2, 1',
             trialDuration: 3,
-            trialTimes: 3,
+            trialTimes: 1,
             sampleRate: 512
         }
     };

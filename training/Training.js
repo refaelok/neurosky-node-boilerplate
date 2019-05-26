@@ -30,7 +30,6 @@ export default class Training {
         this.getNextTrial = this.getNextTrial.bind(this);
         this.getCurrentTrainingObject = this.getCurrentTrainingObject.bind(this);
         this.initialTrainingOnStart = this.initialTrainingOnStart.bind(this);
-        this.isAllSamplesDone = this.isAllSamplesDone.bind(this);
     }
 
     resetCurrentSample() {
@@ -83,28 +82,19 @@ export default class Training {
         });
     }
 
-    isAllSamplesDone(sampleRate) {
-        let isDone = true;
-        for (const event in NeuroskyEvents) {
-            if (this.currentSample[event] < sampleRate) {
-                isDone = false;
-            }
-        }
-
-        return isDone;
-    }
-
     handleSample(data, event) {
         if (this.isReadyForRecord) {
             const {training, trainingName} = this.getCurrentTrainingObject();
 
-            if (this.currentSample[event] < training.sampleRate) {
-                this.currentSample[event] += 1;
+            if (this.currentSample[NeuroskyEvents.wave] < training.sampleRate * training.trialDuration) {
+                if (event === NeuroskyEvents.wave) {
+                    this.currentSample[NeuroskyEvents.wave] += 1;
+                }
 
                 this.trainingResults[trainingName][event].push(data);
-            } else if (this.isAllSamplesDone(training.sampleRate) && this.currentTrial < training.trialTimes) {
+            } else if (this.currentSample[NeuroskyEvents.wave] >= training.sampleRate && this.currentTrial < training.trialTimes) {
                 this.getNextTrial();
-            } else if (this.isAllSamplesDone(training.sampleRate)) {
+            } else if (this.currentSample[NeuroskyEvents.wave] >= training.sampleRate ) {
                 this.getNextTraining();
             }
         }
@@ -151,16 +141,7 @@ export default class Training {
             let i = 0;
 
             for (const event in NeuroskyEvents) {
-                if (event === NeuroskyEvents.eeg) {
-                    setInterval(() => {
-                        if (this.isAllTrainingDone && !trainingsHandled) {
-                            trainingsHandled = true;
-                            resolve(this.trainingResults);
-                        }
-
-                        this.handleSample(i++, event);
-                    }, 1.5);
-                } else {
+                if (event === NeuroskyEvents.wave) {
                     setInterval(() => {
                         if (this.isAllTrainingDone && !trainingsHandled) {
                             trainingsHandled = true;
@@ -169,6 +150,15 @@ export default class Training {
 
                         this.handleSample(i++, event);
                     }, 1.953125);
+                } else {
+                    setInterval(() => {
+                        if (this.isAllTrainingDone && !trainingsHandled) {
+                            trainingsHandled = true;
+                            resolve(this.trainingResults);
+                        }
+
+                        this.handleSample(i++, event);
+                    }, 120);
                 }
             }
         });
